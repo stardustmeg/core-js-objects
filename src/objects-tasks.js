@@ -72,22 +72,6 @@ function removeProperties(obj, keys) {
 }
 
 /**
- * Compares two source objects. Returns true if the objects are equal and false otherwise.
- * There are no nested objects.
- *
- * @param {Object} obj1 - The first object to compare
- * @param {Object} obj2 - The second object to compare
- * @return {boolean} - True if the objects are equal, false otherwise
- *
- * @example
- *    compareObjects({a: 1, b: 2}, {a: 1, b: 2}) => true
- *    compareObjects({a: 1, b: 2}, {a: 1, b: 3}) => false
- */
-function compareObjects(obj1, obj2) {
-  return JSON.stringify(obj1) === JSON.stringify(obj2);
-}
-
-/**
  * Checks if the source object is empty.
  * Returns true if the object contains no enumerable own properties, false otherwise.
  *
@@ -158,8 +142,29 @@ function makeWord(lettersObject) {
  *    sellTickets([25, 25, 50]) => true
  *    sellTickets([25, 100]) => false (The seller does not have enough money to give change.)
  */
-function sellTickets(/* queue */) {
-  throw new Error('Not implemented');
+function sellTickets(queue) {
+  let [bill25, bill50] = [0, 0];
+
+  return queue.reduce((changeAvailable, bill) => {
+    if (!changeAvailable) return false;
+
+    if (bill === 25) {
+      bill25 += 1;
+      return true;
+    }
+    if (bill === 50) {
+      bill25 -= 1;
+      bill50 += 1;
+    } else if (bill === 100) {
+      if (bill50 > 0) {
+        bill50 -= 1;
+        bill25 -= 1;
+      } else {
+        bill25 -= 3;
+      }
+    }
+    return bill25 >= 0;
+  }, true);
 }
 
 /**
@@ -175,8 +180,11 @@ function sellTickets(/* queue */) {
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+
+  this.getArea = () => this.width * this.height;
 }
 
 /**
@@ -189,10 +197,26 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
+/**
+ * Compares two source objects. Returns true if the objects are equal and false otherwise.
+ * There are no nested objects.
+ *
+ * @param {Object} obj1 - The first object to compare
+ * @param {Object} obj2 - The second object to compare
+ * @return {boolean} - True if the objects are equal, false otherwise
+ *
+ * @example
+ *    compareObjects({a: 1, b: 2}, {a: 1, b: 2}) => true
+ *    compareObjects({a: 1, b: 2}, {a: 1, b: 3}) => false
+ */
+function compareObjects(obj1, obj2) {
+  // That's fun :)
+  return getJSON(obj1) === getJSON(obj2);
+}
 /**
  * Returns the object of specified type from JSON representation
  *
@@ -204,8 +228,8 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  return Object.assign(Object.create(proto), JSON.parse(json));
 }
 
 /**
